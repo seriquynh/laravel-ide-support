@@ -1,0 +1,44 @@
+#!/usr/bin/env php
+<?php
+
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Bootstrap\RegisterProviders;
+use Symfony\Component\Console\Input\ArgvInput;
+
+define('LARAVEL_START', microtime(true));
+
+// Register the Composer autoloader...
+require __DIR__.'/../autoload.php';
+
+$psr4 = [
+    "Barryvdh\\LaravelIdeHelper\\" => __DIR__.'/vendor/barryvdh/laravel-ide-helper/src',
+    "Barryvdh\\Reflection\\" => __DIR__.'/vendor/barryvdh/reflection-docblock/src/Barryvdh/Reflection',
+    "Composer\\ClassMapGenerator\\" => __DIR__ . '/vendor/composer/class-map-generator/src',
+    "Composer\\Pcre\\" => __DIR__ . '/vendor/composer/pcre/src',
+];
+
+spl_autoload_register(function ($class) use ($psr4) {
+    foreach ($psr4 as $namespace => $src) {
+        if (str_starts_with($class, $namespace)) {
+            $file = $src . '/' . str_replace([$namespace, '\\'], ['', '/'], $class) . '.php';
+
+            if (is_file($file)) {
+                require_once $file;
+            }
+
+            break;
+        }
+    }
+});
+
+/** @var Application $app */
+$app = require_once __DIR__.'/../../bootstrap/app.php';
+
+$app->afterBootstrapping(RegisterProviders::class, function (Application $app) {
+    $app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
+});
+
+// Bootstrap Laravel and handle the command...
+$status = $app->handleCommand(new ArgvInput);
+
+exit($status);
