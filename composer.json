@@ -1,9 +1,7 @@
 {
   "scripts": {
     "support": [
-      "@php artisan ide-helper:generate --ansi",
-      "@php artisan ide-helper:meta --ansi",
-      "@php artisan ide-helper:models --ansi --nowrite"
+      "@php artisan support --ansi"
     ]
   },
   "require-dev": {

@@ -3,6 +3,8 @@
 
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Bootstrap\RegisterProviders;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\File;
 use Symfony\Component\Console\Input\ArgvInput;
 
 define('LARAVEL_START', microtime(true));
@@ -33,6 +35,23 @@ spl_autoload_register(function ($class) use ($psr4) {
 
 /** @var Application $app */
 $app = require_once __DIR__.'/../../bootstrap/app.php';
+
+$app->booted(function () {
+    Artisan::command('support', function (Application $app) {
+        $this->call('ide-helper:generate', ['--ansi' => true]);
+        $this->call('ide-helper:meta', ['--ansi' => true]);
+        $this->call('ide-helper:models', ['--ansi' => true, '--nowrite' => true]);
+        foreach ([
+            '.phpstorm.meta.php',
+            '_ide_helper.php',
+            '_ide_helper_models.php',
+        ] as $file) {
+            if (file_exists(__DIR__ . '/' . $file)) {
+                File::move(__DIR__ . '/' . $file, $app->basePath($file));
+            }
+        }
+    });
+});
 
 $app->afterBootstrapping(RegisterProviders::class, function (Application $app) {
     $app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
