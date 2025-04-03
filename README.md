@@ -1,4 +1,4 @@
-Laravel IDE support
+Laravel IDE Support
 
 > I don't want to install `barryvdh/laravel-ide-helper` package in every Laravel project, even as a dev dependency.
 Therefore, I create this repository to provide a simple solution to generate meta files for IntelliJ IDEA.
